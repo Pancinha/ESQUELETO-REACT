@@ -15,3 +15,10 @@ Ex: O que o usuário está digitando agora (dataPedido), Qual cliente ele escolh
 Acumuladores (Listas que crescem)
 
 Ex: O Carrinho de compras. O usuário clica e a lista aumenta.
+
+
+
+npm create vite@latest
+npm install axios
+npx json-server@0.17.4 DB.json
+npm run dev
