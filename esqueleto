@@ -1,0 +1,86 @@
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+
+// Mude o nome 'ProvaProg3' para o nome que o professor pedir no exercício
+export default function ProvaProg3() {
+
+  // =========================================================
+  // 1. ÁREA DOS ESTADOS (VARIÁVEIS)
+  // =========================================================
+  
+  // DICA: Se a API retorna uma LISTA (vários itens), comece com [].
+  // DICA: Se a API retorna UM ITEM (detalhe), comece com null ou {}.
+  const [lista, setLista] = useState([]); 
+  
+  // Controle de carregamento (opcional, mas garante nota extra por UX)
+  const [carregando, setCarregando] = useState(true);
+
+  // =========================================================
+  // 2. O USEEFFECT (BUSCAR DADOS NA API)
+  // =========================================================
+  useEffect(() => {
+    
+    // Criamos a função assíncrona aqui dentro para organizar
+    async function buscarDados() {
+      try {
+        // --- COLOCAR A URL DA API AQUI EMBAIXO ---
+        const url = "INSIRA_SUA_URL_DA_API_AQUI"; 
+        const resposta = await axios.get(url);
+
+        // DICA: Dê um console.log para ter certeza do que chegou
+        console.log("Dados da API:", resposta.data);
+
+        // Atualiza o estado com o que veio da internet
+        setLista(resposta.data); 
+
+      } catch (erro) {
+        console.log("Deu erro na busca:", erro);
+        alert("Erro ao buscar dados!");
+      } finally {
+        // Tira o aviso de "carregando" independente se deu certo ou errado
+        setCarregando(false);
+      }
+    }
+
+    // Chama a função que criamos acima
+    buscarDados();
+
+  }, []); // <--- O ARRAY VAZIO [] É OBRIGATÓRIO PARA NÃO ENTRAR EM LOOP
+
+  // =========================================================
+  // 3. O RETURN (O QUE APARECE NA TELA)
+  // =========================================================
+  return (
+    <div style={{ padding: '20px' }}>
+      <h1>Título da Prova</h1>
+
+      {/* --- BLOCO DE CARREGAMENTO (Operador Ternário) --- */}
+      {carregando ? (
+        <p>Carregando informações...</p>
+      ) : (
+        
+        // Se parou de carregar, mostra o conteúdo principal:
+        <div>
+            
+            {/* DICA: Use o .map APENAS se o estado for um Array [] */}
+            {lista.map((item) => (
+              
+              // OBRIGATÓRIO: A div principal do map precisa da key única
+              <div key={item.id} style={{ border: '1px solid #ccc', margin: '10px', padding: '10px' }}>
+                
+                {/* Substitua 'titulo' e 'descricao' pelos nomes que vêm na API */}
+                <h3>{item.titulo}</h3>
+                <p>{item.descricao}</p>
+                
+                {/* Exemplo de botão simples */}
+                <button onClick={() => alert("Clicou no item " + item.id)}>
+                    Detalhes
+                </button>
+              </div>
+
+            ))}
+        </div>
+      )}
+    </div>
+  );
+}
