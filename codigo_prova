@@ -1,0 +1,118 @@
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+
+
+export default function () {
+  const [cadastrarTurma, setCadastraTurma] = useState(false);
+  const [listaCurso, setListaCurso] = useState([]);
+  const [cursoSelecionado, setCursoSelecionado] = useState(null);
+  const [listaTurma, setListaTurma] = useState([]);
+
+  async function carregarDados() {
+    const turmas = await axios.get("http://localhost:3000/turmas");
+    setListaTurma(turmas.data);
+    
+  }
+  useEffect(() => {
+    carregarDados();
+
+  }, [])
+
+  async function cadastroT(){
+    const disciplinaDigitada = document.getElementById("disciplina").value
+    const cursoClicado = document.getElementById("curso_clicado").value
+    const totalAlunos = document.getElementById("numero_alunos").value
+
+
+    const dadosCadasto ={
+      disciplina: disciplinaDigitada,
+      curso: cursoClicado,
+      alunos: totalAlunos
+    }
+
+    await axios.post("http://localhost:3000/turmas", dadosCadasto)
+    setCadastraTurma(false)
+    alert("Cadastro Efetuado com sucesso!")
+    carregarDados();
+
+  }
+  async function excluirTurma(id) {
+    console.log("chegou aqui")
+    let idExcluir = id;
+    await axios.delete("http://localhost:3000/turmas/" + idExcluir)
+    alert("Turma Excluída!")
+    carregarDados()
+    
+  }
+
+  async function zerarAlunos(id) {
+    let turma_id = id;
+    listaTurma.forEach(element => {
+      if (element.id == turma_id) {
+        const atualizaDados = {
+          disciplina: element.disciplina,
+          curso: element.curso,
+          alunos: 0
+        }
+        console.log(atualizaDados)
+      }
+    });
+    //NÃO CONSEGUI DESCOBRIR PQ O POST NÃO PODE SER FEITO AQUI
+    await axios.post("http://localhost:3000/turmas/"+atualizaDados)
+    alert("Número de Alunos zerado!")
+    console.log(atualizaDados)
+  }
+
+  async function editarDados() {
+    
+  }
+
+  return (<>
+    <h1>Turmas</h1>
+    <br /><br />
+    <button onClick={() => setCadastraTurma(true)}>Cadastrar Turmas</button>
+    <dialog open={cadastrarTurma}>
+      <h4>Cadastro</h4>
+      <br />
+      Disciplina: <input type="text" name="" id="disciplina" placeholder='Digite o nome da disciplina'/>
+      <br />
+      Curso<select name="" id="curso_clicado">
+        {listaTurma.map((turma) => (
+          <option key={turma.id} value={turma.id}>{turma.curso}</option>
+        ))}
+      </select>
+      <br />
+      Número de Alunos: <input type="number" name="" id="numero_alunos" />
+      <br />
+      <button onClick={() => cadastroT()}>Cadastrar</button>
+      <button onClick={() => setCadastraTurma(false)}>Fechar</button>
+    </dialog>
+    <br /><br /><br /><br />
+    <table border={"2"}>
+        <thead>
+          <tr>
+            <th>Id</th>
+            <th>Disciplina</th>
+            <th>Curso</th>
+            <th>Alunos</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {listaTurma.map((turma) => (
+            <tr>
+            <td>{turma.id}</td>
+            <td>{turma.disciplina}</td>
+            <td>{turma.curso}</td>
+            <td>{turma.alunos}</td>
+            <td>
+              <button onClick={() => setCadastraTurma(true)}>Editar</button>
+              <button onClick={() => zerarAlunos(turma.id)}>Zerar Alunos</button>
+              <button onClick={() => excluirTurma(turma.id)}>Excluir</button>
+            </td>
+          </tr>
+          ))}
+        </tbody>
+      </table>
+  </>)
+}
